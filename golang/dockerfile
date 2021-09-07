@@ -1,0 +1,15 @@
+FROM golang:1.15-alpine AS build
+
+ENV WORKPATH $GOPATH/src/github.com/maronfranc/subscription-system-products
+
+WORKDIR $WORKPATH
+COPY . .
+RUN go get -d -v ./...
+RUN go install -v ./...
+ENV APPPATH /app/golang-api
+RUN go build -o $APPPATH ./src
+
+FROM alpine:3.14 AS runtime
+COPY --from=build / $APPPATH
+
+CMD [$APPPATH]
