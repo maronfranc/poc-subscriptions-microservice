@@ -1,4 +1,4 @@
-package database
+package mongodb
 
 import (
 	"context"
@@ -25,8 +25,6 @@ var _ctx = context.TODO()
 
 // InitialiseDatabase initializes the connection to the database.
 func InitialiseDatabase(config Config) {
-	fmt.Println("Connecting to database.")
-
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/", config.Username, config.Password, config.Host, config.Port)
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(_ctx, clientOptions)
@@ -82,46 +80,38 @@ func InsertMultiple(collectionName string, object []interface{}) error {
 	return nil
 }
 
-// Get retrieves an entry from the database.
-func Get(collectionName string, filter interface{}, model interface{}) error {
+// FindOne retrieves an entry from the database.
+func FindOne(collectionName string, filter interface{}, model interface{}) error {
 	collection := _database.Collection(collectionName)
-	fmt.Println(collection)
 	encodedFilter, marshalErr := bson.Marshal(filter)
 	if marshalErr != nil {
 		return marshalErr
 	}
-	fmt.Println(encodedFilter)
 
 	err := collection.FindOne(_ctx, encodedFilter).Decode(model)
-
 	return err
 }
 
-// GetAll entries from the database.
-func GetAll(collectionName string, model interface{}) error {
+// FindAll entries from the database.
+func FindAll(collectionName string, model interface{}, filter interface{}, opts *options.FindOptions) error {
 	collection := _database.Collection(collectionName)
-
-	cursor, err := collection.Find(_ctx, bson.M{})
+	cursor, err := collection.Find(_ctx, filter, opts)
 	if err != nil {
 		fmt.Println("Failed to get object", err)
 	}
-
 	if err = cursor.All(_ctx, model); err != nil {
-		fmt.Println("Failed to transform object", err)
+		fmt.Println("Failed to transform object: ", err)
 	}
-
 	return err
 }
 
-// Count entries from the database.
-func Count(collectionName string) (int64, error) {
+// CountDocuments entries from the database.
+func CountDocuments(collectionName string, opts *options.CountOptions) (int64, error) {
 	collection := _database.Collection(collectionName)
-
-	count, err := collection.CountDocuments(_ctx, bson.M{})
+	count, err := collection.CountDocuments(_ctx, opts)
 	if err != nil {
 		fmt.Println("Failed to get object", err)
 	}
-
 	return count, err
 }
 
@@ -139,22 +129,18 @@ func Delete(collectionName string, filter interface{}) (bool, error) {
 		fmt.Println("No elements deleted.")
 		deleted = false
 	}
-
 	return deleted, nil
 }
 
 // RemoveCollection removes a collection from the database.
-func RemoveCollection(collectionName string) {
+func RemoveCollection(collectionName string) error {
 	err := _database.Collection(collectionName).Drop(_ctx)
-	if err != nil {
-		panic(err)
-	}
+	return err
 }
 
 // UpsertEntry updates an existing entry in the database.
 func UpsertEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, update, "$set")
-
 	if err != nil {
 		fmt.Println("Failed to upsert entry", err)
 	}
@@ -164,7 +150,6 @@ func UpsertEntry(collectionName string, filter interface{}, update interface{}) 
 // RemoveEntry updates an existing entry in the database.
 func RemoveEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, update, "$unset")
-
 	if err != nil {
 		fmt.Println("Failed to update entry", err)
 		return false, err
@@ -175,7 +160,6 @@ func RemoveEntry(collectionName string, filter interface{}, update interface{}) 
 // AppendToEntry appends an new entry to an array in the database.
 func AppendToEntry(collectionName string, filter interface{}, add interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, add, "$push")
-
 	if err != nil {
 		fmt.Println("Failed to append to entry", err)
 	}
@@ -185,7 +169,6 @@ func AppendToEntry(collectionName string, filter interface{}, add interface{}) (
 // RemoveFromEntry appends an new entry to an array in the database.
 func RemoveFromEntry(collectionName string, filter interface{}, remove interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, remove, "$pull")
-
 	if err != nil {
 		fmt.Println("Failed to remove from entry", err)
 	}
@@ -194,7 +177,6 @@ func RemoveFromEntry(collectionName string, filter interface{}, remove interface
 
 func modifyEntry(collectionName string, filter interface{}, modify interface{}, operation string) (bool, error) {
 	collection := _database.Collection(collectionName)
-
 	ok, err := collection.UpdateOne(_ctx, filter, bson.M{operation: modify})
 	if err != nil {
 		return false, err

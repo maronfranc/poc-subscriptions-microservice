@@ -5,6 +5,7 @@ import (
 )
 
 func Routes() *mux.Router {
-	r := mux.NewRouter()
+	r := mux.NewRouter().PathPrefix("/v1").Subrouter()
+	Products(r)
 	return r
 }
