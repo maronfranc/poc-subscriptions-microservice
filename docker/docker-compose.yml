@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  mongodb:
+    container_name: mongo-database
+    image: mongo:latest
+    env_file: ./database/.env
+    volumes:
+      - ./mongos:/data/db
+    ports:
+      - 27017:27017
