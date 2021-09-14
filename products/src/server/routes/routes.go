@@ -4,8 +4,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Routes() *mux.Router {
-	r := mux.NewRouter().PathPrefix("/v1").Subrouter()
+// LoadRoutes
+func LoadRoutes(r *mux.Router) {
 	Products(r)
-	return r
 }

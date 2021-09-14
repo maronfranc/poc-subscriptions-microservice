@@ -4,11 +4,9 @@ import (
 	"github.com/maronfranc/subscription-system-products/src/config"
 	"github.com/maronfranc/subscription-system-products/src/mongodb"
 	"github.com/maronfranc/subscription-system-products/src/server"
-	"github.com/maronfranc/subscription-system-products/src/server/routes"
 )
 
 func main() {
-	r := routes.Routes()
 	cfg := config.GetConfig()
 	dbcfg := mongodb.Config{
 		Username:     cfg.Database.Username,
@@ -18,5 +16,5 @@ func main() {
 		Port:         cfg.Database.Port,
 	}
 	mongodb.InitialiseDatabase(dbcfg)
-	server.Listen(r, cfg.Server.Port)
+	server.Listen(cfg.Server.Port)
 }

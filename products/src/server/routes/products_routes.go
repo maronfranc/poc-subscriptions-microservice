@@ -7,6 +7,7 @@ import (
 	"github.com/maronfranc/subscription-system-products/src/server/controllers"
 )
 
+// Products routes
 func Products(r *mux.Router) {
 	route := r.PathPrefix("/products").Subrouter()
 	route.Path("").Methods(http.MethodPost).HandlerFunc(controllers.Insert)
