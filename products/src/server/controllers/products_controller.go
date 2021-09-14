@@ -13,9 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const DEFAULT_PER_PAGE int64 = 10
-const DEFAULT_PAGE int64 = 1
-
+// Insert creates a new products
 func Insert(w http.ResponseWriter, r *http.Request) {
 	var pdt models.ProductModel
 	err := json.NewDecoder(r.Body).Decode(&pdt)
@@ -31,6 +29,7 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetPaginated return paginated products
 func GetPaginated(w http.ResponseWriter, r *http.Request) {
 	pg, err := queryString(r, "page")
 	if err != nil {
@@ -63,6 +62,7 @@ func GetPaginated(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetById
 func GetById(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	objId, err := primitive.ObjectIDFromHex(id)
