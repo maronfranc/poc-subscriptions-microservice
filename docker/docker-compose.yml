@@ -9,3 +9,13 @@ services:
       - ./mongos:/data/db
     ports:
       - 27017:27017
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    env_file: ./database/.env  
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq/data/:/var/lib/rabbitmq
+      - ./rabbitmq/log/:/var/log/rabbitmq
