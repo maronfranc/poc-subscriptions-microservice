@@ -6,3 +6,8 @@ database:
   user: user
   password: password
   name: mongo-database
+message_broker:
+  host: localhost
+  port: 5672
+  user: guest
+  password: guest

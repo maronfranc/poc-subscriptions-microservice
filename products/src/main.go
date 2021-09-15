@@ -7,14 +7,14 @@ import (
 )
 
 func main() {
-	cfg := config.GetConfig()
+	config.Cfg = config.GetConfig()
 	dbcfg := mongodb.Config{
-		Username:     cfg.Database.Username,
-		Password:     cfg.Database.Password,
-		DatabaseName: cfg.Database.DatabaseName,
-		Host:         cfg.Database.Host,
-		Port:         cfg.Database.Port,
+		Username:     config.Cfg.Database.Username,
+		Password:     config.Cfg.Database.Password,
+		DatabaseName: config.Cfg.Database.DatabaseName,
+		Host:         config.Cfg.Database.Host,
+		Port:         config.Cfg.Database.Port,
 	}
 	mongodb.InitialiseDatabase(dbcfg)
-	server.Listen(cfg.Server.Port)
+	server.Listen(config.Cfg.Server.Port)
 }

@@ -25,6 +25,7 @@ require (
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/joho/godotenv v1.3.0 // indirect
+	github.com/streadway/amqp v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	olympos.io/encoding/edn v0.0.0-20200308123125-93e3b8dd0e24 // indirect
 )
