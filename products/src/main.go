@@ -4,6 +4,7 @@ import (
 	"github.com/maronfranc/subscription-system-products/src/config"
 	"github.com/maronfranc/subscription-system-products/src/mongodb"
 	"github.com/maronfranc/subscription-system-products/src/server"
+	"github.com/maronfranc/subscription-system-products/src/server/messages"
 )
 
 func main() {
@@ -16,5 +17,6 @@ func main() {
 		Port:         config.Cfg.Database.Port,
 	}
 	mongodb.InitialiseDatabase(dbcfg)
+	messages.ListenMessageConsumer()
 	server.Listen(config.Cfg.Server.Port)
 }

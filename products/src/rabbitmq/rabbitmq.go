@@ -2,7 +2,6 @@ package rabbitmq
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/maronfranc/subscription-system-products/src/config"
 	"github.com/streadway/amqp"
@@ -85,7 +84,7 @@ func SendMessage(c *amqp.Channel, eName, rountingKey string, msg []byte) error {
 	return nil
 }
 
-func Consume(c *amqp.Channel, qName string) {
+func Consume(c *amqp.Channel, qName string, f func(amqp.Delivery)) {
 	consumer, err := c.Consume(
 		qName, // queue
 		"",    // consumer
@@ -99,13 +98,31 @@ func Consume(c *amqp.Channel, qName string) {
 		panic(err)
 	}
 
-	listen := make(chan bool)
-
+	forever := make(chan bool)
 	go func() {
 		for d := range consumer {
-			log.Printf(" [x] %s", d.Body)
+			f(d)
 		}
 	}()
+	<-forever
+}
 
-	<-listen
+// ConnectDeclare create queue and bind to exchange
+func ConnectDeclare(eName, qName, key, kind string) (*amqp.Connection, *amqp.Channel, error) {
+	conn, c, err := Connect()
+	if err != nil {
+		return conn, c, err
+	}
+
+	if err := DeclareExchange(c, eName, kind); err != nil {
+		return conn, c, err
+	}
+
+	q, err := QueueDeclare(c, qName)
+	if err != nil {
+		return conn, c, err
+	}
+
+	BindQueueToExchange(c, q, eName, key)
+	return conn, c, err
 }
