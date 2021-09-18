@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,11 +30,11 @@ func InitialiseDatabase(config Config) {
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(_ctx, clientOptions)
 	if err != nil {
-		fmt.Println("Println to connect to database.", err)
+		log.Println("Println to connect to database.", err)
 		panic(err)
 	}
 
-	fmt.Println("Connected to database.")
+	log.Println("Connected to database.")
 
 	_client = client
 	_database = client.Database(config.DatabaseName)
@@ -43,7 +44,7 @@ func InitialiseDatabase(config Config) {
 func Ping() bool {
 	err := _client.Ping(_ctx, readpref.Primary())
 	if err != nil {
-		fmt.Println("Failed to ping database.", err)
+		log.Println("Failed to ping database.", err)
 		return false
 	}
 
@@ -61,7 +62,7 @@ func Insert(collectionName string, object interface{}) (bool, error) {
 
 	var inserted = true
 	if ok.InsertedID == nil {
-		fmt.Println("No elements inserted.")
+		log.Println("No elements inserted.")
 		inserted = false
 	}
 
@@ -97,10 +98,10 @@ func FindAll(collectionName string, model interface{}, filter interface{}, opts 
 	collection := _database.Collection(collectionName)
 	cursor, err := collection.Find(_ctx, filter, opts)
 	if err != nil {
-		fmt.Println("Failed to get object", err)
+		log.Println("Failed to get object", err)
 	}
 	if err = cursor.All(_ctx, model); err != nil {
-		fmt.Println("Failed to transform object: ", err)
+		log.Println("Failed to transform object: ", err)
 	}
 	return err
 }
@@ -110,7 +111,7 @@ func CountDocuments(collectionName string, opts *options.CountOptions) (int64, e
 	collection := _database.Collection(collectionName)
 	count, err := collection.CountDocuments(_ctx, opts)
 	if err != nil {
-		fmt.Println("Failed to get object", err)
+		log.Println("Failed to get object", err)
 	}
 	return count, err
 }
@@ -126,7 +127,7 @@ func Delete(collectionName string, filter interface{}) (bool, error) {
 
 	var deleted = true
 	if ok.DeletedCount == 0 {
-		fmt.Println("No elements deleted.")
+		log.Println("No elements deleted.")
 		deleted = false
 	}
 	return deleted, nil
@@ -142,7 +143,7 @@ func RemoveCollection(collectionName string) error {
 func UpsertEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, update, "$set")
 	if err != nil {
-		fmt.Println("Failed to upsert entry", err)
+		log.Println("Failed to upsert entry", err)
 	}
 	return updated, nil
 }
@@ -151,7 +152,7 @@ func UpsertEntry(collectionName string, filter interface{}, update interface{}) 
 func RemoveEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, update, "$unset")
 	if err != nil {
-		fmt.Println("Failed to update entry", err)
+		log.Println("Failed to update entry", err)
 		return false, err
 	}
 	return updated, nil
@@ -161,7 +162,7 @@ func RemoveEntry(collectionName string, filter interface{}, update interface{}) 
 func AppendToEntry(collectionName string, filter interface{}, add interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, add, "$push")
 	if err != nil {
-		fmt.Println("Failed to append to entry", err)
+		log.Println("Failed to append to entry", err)
 	}
 	return updated, err
 }
@@ -170,7 +171,7 @@ func AppendToEntry(collectionName string, filter interface{}, add interface{}) (
 func RemoveFromEntry(collectionName string, filter interface{}, remove interface{}) (bool, error) {
 	updated, err := modifyEntry(collectionName, filter, remove, "$pull")
 	if err != nil {
-		fmt.Println("Failed to remove from entry", err)
+		log.Println("Failed to remove from entry", err)
 	}
 	return updated, err
 }

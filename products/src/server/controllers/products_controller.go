@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -24,7 +24,7 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 
 	p := products.Insert(pdt.Name, pdt.Price)
 	if err := json.NewEncoder(w).Encode(p); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Error encoding response object", http.StatusInternalServerError)
 	}
 }
@@ -57,7 +57,7 @@ func GetPaginated(w http.ResponseWriter, r *http.Request) {
 		Count:      int64(len(pp)),
 	}
 	if err := json.NewEncoder(w).Encode(paginated); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Error encoding response object", http.StatusInternalServerError)
 	}
 }
@@ -77,7 +77,7 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := json.NewEncoder(w).Encode(p); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Error encoding response object", http.StatusInternalServerError)
 	}
 }

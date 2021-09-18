@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"sync"
 
@@ -44,7 +44,7 @@ func GetConfig() *Config {
 	_once.Do(func() {
 		err := cleanenv.ReadConfig(configPath, &cfg)
 		if err != nil {
-			fmt.Println("Failed to load config.", err)
+			log.Println("Failed to load config.", err)
 			panic(err)
 		}
 	})
