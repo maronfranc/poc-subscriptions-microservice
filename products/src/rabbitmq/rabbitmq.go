@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/maronfranc/subscription-system-products/src/config"
 	"github.com/streadway/amqp"
@@ -67,6 +68,7 @@ func BindQueueToExchange(c *amqp.Channel, q *amqp.Queue, exchangeName, key strin
 	return err
 }
 
+// SendMessage to exchange
 func SendMessage(c *amqp.Channel, eName, rountingKey string, msg []byte) error {
 	if err := c.Publish(
 		eName,       // exchange
@@ -84,27 +86,22 @@ func SendMessage(c *amqp.Channel, eName, rountingKey string, msg []byte) error {
 	return nil
 }
 
-func Consume(c *amqp.Channel, qName string, f func(amqp.Delivery)) {
-	consumer, err := c.Consume(
-		qName, // queue
-		"",    // consumer
-		true,  // auto ack
-		false, // exclusive
-		false, // no local
-		false, // no wait
-		nil,   // args
-	)
+// Consumer create exchange and queue connection and handle delivery data
+func Consumer(eName, qName, key, kind string, f func(amqp.Delivery)) error {
+	conn, c, err := ConnectDeclare(eName, qName, key, kind)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	defer c.Close()
+	defer conn.Close()
 
-	forever := make(chan bool)
-	go func() {
-		for d := range consumer {
-			f(d)
-		}
-	}()
-	<-forever
+	log.Println("Listening message broker:")
+	log.Println("- Exchange:   ", eName)
+	log.Println("- Queue:      ", qName)
+	log.Println("- Routing key:", key)
+	consume(c, qName, f)
+
+	return nil
 }
 
 // ConnectDeclare create queue and bind to exchange
@@ -125,4 +122,40 @@ func ConnectDeclare(eName, qName, key, kind string) (*amqp.Connection, *amqp.Cha
 
 	BindQueueToExchange(c, q, eName, key)
 	return conn, c, err
+}
+
+// Send message to broker
+func Send(eName, qName, key, kind string, msg []byte) error {
+	conn, c, err := ConnectDeclare(eName, qName, key, kind)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	defer conn.Close()
+
+	err = SendMessage(c, eName, key, msg)
+	return err
+}
+
+func consume(c *amqp.Channel, qName string, f func(amqp.Delivery)) {
+	consumer, err := c.Consume(
+		qName, // queue
+		"",    // consumer
+		true,  // auto ack
+		false, // exclusive
+		false, // no local
+		false, // no wait
+		nil,   // args
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	forever := make(chan bool)
+	go func() {
+		for d := range consumer {
+			f(d)
+		}
+	}()
+	<-forever
 }

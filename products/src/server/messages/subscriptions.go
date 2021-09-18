@@ -9,7 +9,7 @@ import (
 
 // SubscriptionBuy send buy message to broker
 func SubscriptionBuy(msg []byte) error {
-	err := Send(
+	err := rabbitmq.Send(
 		rabbitmq.SUBSCRIPTIONS_BUY_E,
 		rabbitmq.SUBSCRIPTIONS_BUY_Q,
 		KEY_SUBSCRIPTION_BUY,
