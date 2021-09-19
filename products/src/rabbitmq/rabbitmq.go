@@ -68,26 +68,8 @@ func BindQueueToExchange(c *amqp.Channel, q *amqp.Queue, exchangeName, key strin
 	return err
 }
 
-// SendMessage to exchange
-func SendMessage(c *amqp.Channel, eName, rountingKey string, msg []byte) error {
-	if err := c.Publish(
-		eName,       // exchange
-		rountingKey, // queue name
-		false,       // mandatory
-		false,       // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        msg,
-		}, // message to publish
-	); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Consumer create exchange and queue connection and handle delivery data
-func Consumer(eName, qName, key, kind string, f func(amqp.Delivery)) error {
+func Consumer(eName, qName, key, kind string, f func([]byte)) error {
 	conn, c, err := ConnectDeclare(eName, qName, key, kind)
 	if err != nil {
 		return err
@@ -124,8 +106,8 @@ func ConnectDeclare(eName, qName, key, kind string) (*amqp.Connection, *amqp.Cha
 	return conn, c, err
 }
 
-// Send message to broker
-func Send(eName, qName, key, kind string, msg []byte) error {
+// SendMessage message to broker
+func SendMessage(eName, qName, key, kind string, msg []byte) error {
 	conn, c, err := ConnectDeclare(eName, qName, key, kind)
 	if err != nil {
 		return err
@@ -133,11 +115,11 @@ func Send(eName, qName, key, kind string, msg []byte) error {
 	defer c.Close()
 	defer conn.Close()
 
-	err = SendMessage(c, eName, key, msg)
+	err = publishMessage(c, eName, key, msg)
 	return err
 }
 
-func consume(c *amqp.Channel, qName string, f func(amqp.Delivery)) {
+func consume(c *amqp.Channel, qName string, f func([]byte)) {
 	consumer, err := c.Consume(
 		qName, // queue
 		"",    // consumer
@@ -154,8 +136,26 @@ func consume(c *amqp.Channel, qName string, f func(amqp.Delivery)) {
 	forever := make(chan bool)
 	go func() {
 		for d := range consumer {
-			f(d)
+			f(d.Body)
 		}
 	}()
 	<-forever
+}
+
+// publishMessage to exchange
+func publishMessage(c *amqp.Channel, eName, rountingKey string, msg []byte) error {
+	if err := c.Publish(
+		eName,       // exchange
+		rountingKey, // queue name
+		false,       // mandatory
+		false,       // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        msg,
+		}, // message to publish
+	); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -4,12 +4,11 @@ import (
 	"log"
 
 	"github.com/maronfranc/subscription-system-products/src/rabbitmq"
-	"github.com/streadway/amqp"
 )
 
 // SubscriptionBuy send buy message to broker
 func SubscriptionBuy(msg []byte) error {
-	err := rabbitmq.Send(
+	err := rabbitmq.SendMessage(
 		rabbitmq.SUBSCRIPTIONS_BUY_E,
 		rabbitmq.SUBSCRIPTIONS_BUY_Q,
 		KEY_SUBSCRIPTION_BUY,
@@ -23,6 +22,6 @@ func SubscriptionBuy(msg []byte) error {
 }
 
 // HandleDelivery receives message from broker
-func HandleDelivery(d amqp.Delivery) {
-	log.Printf(" [x] %s", d.Body)
+func HandleDelivery(b []byte) {
+	log.Printf(" [x] %s", b)
 }
