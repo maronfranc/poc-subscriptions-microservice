@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/maronfranc/subscription-system-products/src/config"
+	"github.com/maronfranc/poc-subscriptions-microservice/payment/src/config"
 	"github.com/streadway/amqp"
 )
 
