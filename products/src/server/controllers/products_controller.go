@@ -15,14 +15,14 @@ import (
 
 // Insert creates a new products
 func Insert(w http.ResponseWriter, r *http.Request) {
-	var pdt models.ProductModel
-	err := json.NewDecoder(r.Body).Decode(&pdt)
+	var pm models.ProductModel
+	err := json.NewDecoder(r.Body).Decode(&pm)
 	if err != nil {
 		http.Error(w, "Invalid product", http.StatusBadRequest)
 		return
 	}
 
-	p := products.Insert(pdt.Name, pdt.Price)
+	p := products.Insert(pm.Name, pm.Price)
 	if err := json.NewEncoder(w).Encode(p); err != nil {
 		log.Println(err)
 		http.Error(w, "Error encoding response object", http.StatusInternalServerError)

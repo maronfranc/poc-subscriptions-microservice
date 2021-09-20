@@ -138,12 +138,12 @@ func consume(c *amqp.Channel, qName string, f func([]byte)) {
 }
 
 // publishMessage to exchange
-func publishMessage(c *amqp.Channel, eName, rountingKey string, msg []byte) error {
+func publishMessage(c *amqp.Channel, eName, key string, msg []byte) error {
 	err := c.Publish(
-		eName,       // exchange
-		rountingKey, // queue name
-		false,       // mandatory
-		false,       // immediate
+		eName, // exchange
+		key,   // routing key
+		false, // mandatory
+		false, // immediate
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        msg,

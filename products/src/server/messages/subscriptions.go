@@ -9,19 +9,22 @@ import (
 // SubscriptionBuy send buy message to broker
 func SubscriptionBuy(msg []byte) error {
 	err := rabbitmq.SendMessage(
-		rabbitmq.SUBSCRIPTIONS_BUY_E,
-		rabbitmq.SUBSCRIPTIONS_BUY_Q,
-		KEY_SUBSCRIPTION_BUY,
+		SUBSCRIPTIONS_E,
+		SUBSCRIPTIONS_REQUEST_Q,
+		SUBSCRIPTIONS_BUY_REQUEST_K,
 		"topic",
 		msg,
 	)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
-// HandleDelivery receives message from broker
-func HandleDelivery(b []byte) {
+// HandleSubscriptionFail receives message from broker
+func HandleSubscriptionFail(b []byte) {
+	log.Printf(" [x] %s", b)
+}
+
+// HandleSubscriptionSuccess receives message from broker
+func HandleSubscriptionSuccess(b []byte) {
+	log.Println("Handle subscription")
 	log.Printf(" [x] %s", b)
 }

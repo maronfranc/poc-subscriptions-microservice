@@ -1,15 +1,13 @@
 package messages
 
-import (
-	"github.com/maronfranc/poc-subscriptions-microservice/payment/src/rabbitmq"
-)
+import "github.com/maronfranc/poc-subscriptions-microservice/payment/src/rabbitmq"
 
 // ListenMessageConsumer
 func ListenMessageConsumer() {
 	rabbitmq.Consumer(
-		rabbitmq.SUBSCRIPTIONS_BUY_E,
-		rabbitmq.SUBSCRIPTIONS_BUY_Q,
-		KEY_SUBSCRIPTION_BUY,
+		SUBSCRIPTIONS_E,
+		SUBSCRIPTIONS_REQUEST_Q,
+		SUBSCRIPTIONS_BUY_REQUEST_K,
 		"topic",
 		handleTransactionRequest,
 	)

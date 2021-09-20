@@ -1,16 +1,27 @@
 package messages
 
 import (
+	"log"
+
 	"github.com/maronfranc/subscription-system-products/src/rabbitmq"
 )
 
 // ListenMessageConsumer
 func ListenMessageConsumer() {
+	log.Println("Listening message broker")
+
 	go rabbitmq.Consumer(
-		rabbitmq.SUBSCRIPTIONS_BUY_E,
-		rabbitmq.SUBSCRIPTIONS_BUY_Q,
-		KEY_SUBSCRIPTION_BUY,
+		SUBSCRIPTIONS_E,
+		SUBSCRIPTIONS_SUCCESS_Q,
+		SUBSCRIPTIONS_BUY_SUCCESS_K,
 		"topic",
-		HandleDelivery,
+		HandleSubscriptionSuccess,
+	)
+	go rabbitmq.Consumer(
+		SUBSCRIPTIONS_E,
+		SUBSCRIPTIONS_FAIL_Q,
+		SUBSCRIPTIONS_BUY_FAIL_K,
+		"topic",
+		HandleSubscriptionFail,
 	)
 }
