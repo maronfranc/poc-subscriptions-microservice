@@ -6,7 +6,7 @@ import "github.com/maronfranc/poc-subscriptions-microservice/payment/src/rabbitm
 func ListenMessageConsumer() {
 	go rabbitmq.Consumer(
 		SUBSCRIPTIONS_E,
-		SUBSCRIPTIONS_REQUEST_Q,
+		SUBSCRIPTIONS_BUY_REQUEST_Q,
 		SUBSCRIPTIONS_BUY_REQUEST_K,
 		"topic",
 		handleTransactionRequest,
