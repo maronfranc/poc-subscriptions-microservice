@@ -6,6 +6,10 @@ import (
 )
 
 func main() {
+	// load configuration to be used in rabbitmq connection
 	config.Cfg = config.GetConfig()
+
+	ch := make(chan interface{})
 	messages.ListenMessageConsumer()
+	<-ch
 }
